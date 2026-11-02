@@ -1,0 +1,17 @@
+[project]
+name = "mini-company-brain"
+version = "0.1.0"
+description = "Ask plain-English questions about company documents and get cited answers from an AI-maintained wiki."
+readme = "README.md"
+authors = [
+    { name = "Fahmi", email = "amirulfahmiii920@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+mini-company-brain = "mini_company_brain:main"
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
