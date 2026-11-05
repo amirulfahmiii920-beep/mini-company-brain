@@ -18,6 +18,7 @@ dependencies = [
 [project.scripts]
 mini-company-brain = "mini_company_brain:main"
 mcb-ingest = "mini_company_brain.cli:ingest_main"
+mcb-search = "mini_company_brain.cli:search_main"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
