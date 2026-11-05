@@ -11,6 +11,9 @@ from psycopg.conninfo import make_conninfo
 # docker-compose.yml publishes Postgres on localhost only.
 DB_HOST = "127.0.0.1"
 DEFAULT_DB_PORT = "5432"
+# Seconds. Without a timeout, connecting while Docker is stopped hangs for
+# minutes on Windows instead of failing with a clear error.
+DB_CONNECT_TIMEOUT = 5
 
 # Repo root, so the model cache stays inside the project on D: by default.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -52,6 +55,7 @@ def load_settings(env: Mapping[str, str] | None = None) -> Settings:
         user=_require(env, "POSTGRES_USER"),
         password=_require(env, "POSTGRES_PASSWORD"),
         dbname=_require(env, "POSTGRES_DB"),
+        connect_timeout=DB_CONNECT_TIMEOUT,
     )
     cache_dir = env.get("FASTEMBED_CACHE_DIR")
     return Settings(

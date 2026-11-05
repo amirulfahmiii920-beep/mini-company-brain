@@ -20,6 +20,11 @@ def test_builds_database_url_from_env():
     assert "host=127.0.0.1" in settings.database_url
 
 
+def test_database_url_has_connect_timeout():
+    # Without it, connecting while Docker is stopped hangs for minutes on Windows.
+    assert "connect_timeout=5" in load_settings(FULL_ENV).database_url
+
+
 def test_port_defaults_to_5432():
     env = {k: v for k, v in FULL_ENV.items() if k != "POSTGRES_PORT"}
     assert "port=5432" in load_settings(env).database_url

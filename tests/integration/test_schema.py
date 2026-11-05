@@ -3,7 +3,8 @@
 import psycopg
 import pytest
 
-from mini_company_brain.db import apply_schema
+from mini_company_brain.config import load_settings
+from mini_company_brain.db import apply_schema, connect
 
 pytestmark = pytest.mark.integration
 
@@ -19,6 +20,16 @@ def test_schema_creates_tables_with_vector_384(db_conn):
         "WHERE attrelid = 'chunks'::regclass AND attname = 'embedding'"
     ).fetchone()[0]
     assert dim == 384
+
+
+def test_connect_returns_autocommit_connection():
+    # Writes are grouped with explicit conn.transaction() blocks. In autocommit
+    # mode a forgotten block cannot leave a transaction open and uncommitted.
+    conn = connect(load_settings())
+    try:
+        assert conn.autocommit is True
+    finally:
+        conn.close()
 
 
 def test_schema_is_idempotent(db_conn):

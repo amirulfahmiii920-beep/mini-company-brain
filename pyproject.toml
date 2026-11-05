@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "fastembed>=0.9.1",
     "pgvector>=0.5.1",
     "psycopg[binary]>=3.3.7",
     "python-dotenv>=1.2.4",
@@ -16,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 mini-company-brain = "mini_company_brain:main"
+mcb-ingest = "mini_company_brain.cli:ingest_main"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
