@@ -7,11 +7,40 @@ authors = [
     { name = "Fahmi", email = "amirulfahmiii920@gmail.com" }
 ]
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "fastembed>=0.9.1",
+    "pgvector>=0.5.1",
+    "psycopg[binary]>=3.3.7",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.3",
+]
 
 [project.scripts]
 mini-company-brain = "mini_company_brain:main"
+mcb-ingest = "mini_company_brain.cli:ingest_main"
+mcb-search = "mini_company_brain.cli:search_main"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "integration: needs the Docker Postgres from docker-compose.yml",
+]
+
+[tool.ruff]
+line-length = 100
+# docs/ holds plan sketches in Markdown code blocks, not runnable code.
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
