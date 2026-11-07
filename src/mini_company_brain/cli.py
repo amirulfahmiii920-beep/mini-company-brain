@@ -8,7 +8,7 @@ from pathlib import Path
 import psycopg
 
 from mini_company_brain.config import PROJECT_ROOT, ConfigError, load_settings
-from mini_company_brain.db import apply_schema, connect
+from mini_company_brain.db import DatabaseConnectionError, apply_schema, connect
 from mini_company_brain.documents import FrontMatterError
 from mini_company_brain.embedding import FastEmbedEmbedder
 from mini_company_brain.search import ACCESS_BY_ROLE, MAX_K, search
@@ -34,12 +34,19 @@ def ingest_main(argv: Sequence[str] | None = None) -> int:
             total_chunks = conn.execute("SELECT count(*) FROM chunks").fetchone()[0]
     # Expected failures get one clear line instead of a traceback. None of these
     # messages contain the password: ConfigError names variables only, and
-    # psycopg errors describe the server, not the connection string.
-    except (ConfigError, FrontMatterError, NotADirectoryError, ValueError) as exc:
+    # DatabaseConnectionError is built without the connection string.
+    except (
+        ConfigError,
+        DatabaseConnectionError,
+        FrontMatterError,
+        NotADirectoryError,
+        ValueError,
+    ) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
+    # Connected, but Postgres went away mid-run (for example Docker stopped).
     except psycopg.OperationalError as exc:
-        print(f"Error: cannot reach Postgres. Is Docker running? ({exc})", file=sys.stderr)
+        print(f"Error: lost the connection to Postgres ({exc})", file=sys.stderr)
         return 1
 
     print(f"added:     {len(report.added)}")
@@ -79,11 +86,11 @@ def search_main(argv: Sequence[str] | None = None) -> int:
         with connect(settings) as conn:
             embedder = FastEmbedEmbedder(settings.model_cache_dir)
             hits = search(conn, embedder, args.query, role=args.role, k=args.k)
-    except (ConfigError, ValueError) as exc:
+    except (ConfigError, DatabaseConnectionError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     except psycopg.OperationalError as exc:
-        print(f"Error: cannot reach Postgres. Is Docker running? ({exc})", file=sys.stderr)
+        print(f"Error: lost the connection to Postgres ({exc})", file=sys.stderr)
         return 1
 
     if not hits:
